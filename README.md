@@ -7,5 +7,5 @@ PyTorch implementation for our CVPR 2023 paper SE-ORNet.
 ## News
 
 * **28. February 2023**: SE-ORNet is accepted at CVPR 2023. :fire:
-* **10. April 2022**: [SE-ORNet preprint](https://arxiv.org/abs/2304.05395) released on arXiv.
+* **10. April 2023**: [SE-ORNet preprint](https://arxiv.org/abs/2304.05395) released on arXiv.
 * **Coming Soon**: Code will be released soon.
