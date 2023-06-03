@@ -10,7 +10,6 @@
 *.off
 *.ply
 *.pdf
-*.gif
 *.html
 *.zip
 tune_*/*
