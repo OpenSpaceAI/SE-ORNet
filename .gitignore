@@ -22,8 +22,5 @@ kernels/dispositions/k_015_center_3D.ply
 repreducability/noise_rotate_test/outputs/*
 **/events.out.*
 **/checkpoints/*
-data/datasets
-!data/datasets/surreal
-data/datasets/surreal/*
-!data/datasets/surreal/datas_surreal_test.pth
+
 !data/docs/*
