@@ -15,8 +15,26 @@ PyTorch implementation for our CVPR 2023 paper SE-ORNet.
 * **10. April 2023**: [SE-ORNet preprint](https://arxiv.org/abs/2304.05395) released on arXiv.
 * **Coming Soon**: Code will be released soon.
 
-## Running the code
-To be supplemented
+## Installation
+
+1. Create a virtual environment via `conda`.
+
+   ```shell
+    conda create -n se_ornet python=3.10 -y
+    conda activate se_ornet
+   ```
+
+2. Install `torch` and `torchvision`.
+
+   ```shell
+   conda install pytorch==1.12.1 torchvision==0.13.1 torchaudio==0.12.1 cudatoolkit=11.3 -c pytorch -y
+   ```
+
+3. Install environments
+   ```shell
+   sh setup.sh
+   ```
+
 
 ## Code structure
 
@@ -61,9 +79,9 @@ To be supplemented
 ## Dependencies
 The main dependencies of the project are the following:
 ```yaml
-python: 3.7
-cuda: 11.1
-pytorch: 1.10.1
+python: 3.10
+cuda: 11.3
+pytorch: 1.12.1
 ```
 ## Datasets
 The method was evaluated on:
@@ -93,6 +111,18 @@ The method was evaluated on:
 ## Data preprocessing
 To be supplemented
 
+## Models
+The metrics are obtained in 5 training runs followed by 5 test runs. We report both the best and the average values (the latter are given in round brackets).
+
+**Human Datasets**
+
+| Dataset | mAP@0.25 | mAP@0.5 | Download |
+|:-------:|:--------:|:-------:|:--------:|
+|  | 17.5 (16.8) | 5.1 (5.6) | [model](https://drive.google.com/drive/folders/1YG342B5f4Yhb7Z9OMo3KdHvOmvHJxzQm?usp=drive_link) |
+|  | 22.3 (21.3) | 4.5 (4.8) | [model](https://drive.google.com/drive/folders/1NiL2JF5Rd_xmbJkOqiJOP1b_nCmSY7-Y?usp=sharing) |
+
+
+
 ## Training & inference
 
 For training run
@@ -114,4 +144,19 @@ python train_point_corr.py --show_vis --do_train false --resume_from_checkpoint 
 ```
 
 ## BibTeX
-To be supplemented
+
+If you like our work and use the codebase or models for your research, please cite our work as follows.
+
+```bibtex
+@inproceedings{
+Deng2023seornet,
+title={{SE}-{ORN}et: Self-Ensembling Orientation-aware Network for Unsupervised Point Cloud Shape Correspondence},
+author={Jiacheng Deng, ChuXin Wang, Jiahao Lu, Jianfeng He, Tianzhu Zhang, Jiyang Yu, Zhe Zhang},
+booktitle={Conference on Computer Vision and Pattern Recognition 2023},
+year={2023},
+url={https://openreview.net/forum?id=DS6AyDWnAv}
+}
+``` 
+
+<!-- ## Acknowledgement
+We thank for the inspiration from [MSN]() and [GRNet]() -->
