@@ -6,6 +6,20 @@ PyTorch implementation for our CVPR 2023 paper SE-ORNet.
 <a href="https://pytorch.org/get-started/locally/"><img alt="PyTorch" src="https://img.shields.io/badge/PyTorch-ee4c2c?logo=pytorch&logoColor=white"></a>
 <a href="https://pytorchlightning.ai/"><img alt="Lightning" src="https://img.shields.io/badge/-Lightning-792ee5?logo=pytorchlightning&logoColor=white"></a>
 
+<div>
+    <img src="./data/readme_figure/cat_src.gif" alt="Image 1" width="248" />
+    <img src="./data/readme_figure/cat_tgt.gif" alt="Image 2" width="248" />
+    <img src="./data/readme_figure/human_src.gif" alt="Image 3" width="248" />
+    <img src="./data/readme_figure/human_tgt.gif" alt="Image 4" width="248" />
+</div>
+
+<div>
+    <img src="./data/readme_figure/cat_src_noise.gif" alt="Image 5" width="248" />
+    <img src="./data/readme_figure/cat_tgt_noise.gif" alt="Image 6" width="248" />
+    <img src="./data/readme_figure/human_src_noise.gif" alt="Image 7" width="248" />
+    <img src="./data/readme_figure/human_tgt_noise.gif" alt="Image 8" width="248" />
+</div>
+
 [[Project Webpage](https://chuxwa.github.io/SE-ORNet/)]
 [[Paper](https://arxiv.org/abs/2304.05395)]
 
