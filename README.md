@@ -108,9 +108,6 @@ The method was evaluated on:
   * This code downloads and preprocesses TOSCA automatically.
   * To ease the usage of this benchmark, the processed dataset can be downloaded from [here](https://mailtauacil-my.sharepoint.com/:f:/g/personal/dvirginzburg_mail_tau_ac_il/EoMgplq-XqlGpl6K6lW6C8gBCxfq2gWXQ4f94xchF3dc9g?e=USid0X). Please extract and put under `data/datasets/tosca`
 
-## Data preprocessing
-To be supplemented
-
 ## Models
 The metrics are obtained in 5 training runs followed by 5 test runs. We report both the best and the average values (the latter are given in round brackets).
 
@@ -118,8 +115,8 @@ The metrics are obtained in 5 training runs followed by 5 test runs. We report b
 
 | Dataset | mAP@0.25 | mAP@0.5 | Download |
 |:-------:|:--------:|:-------:|:--------:|
-|  | 17.5 (16.8) | 5.1 (5.6) | [model](https://drive.google.com/drive/folders/1YG342B5f4Yhb7Z9OMo3KdHvOmvHJxzQm?usp=drive_link) |
-|  | 22.3 (21.3) | 4.5 (4.8) | [model](https://drive.google.com/drive/folders/1NiL2JF5Rd_xmbJkOqiJOP1b_nCmSY7-Y?usp=sharing) |
+| SHREC’19 | 17.5 (16.8) | 5.1 (5.6) | [model](https://drive.google.com/drive/folders/1YG342B5f4Yhb7Z9OMo3KdHvOmvHJxzQm?usp=drive_link) |
+| SURREAL | 22.3 (21.3) | 4.5 (4.8) | [model](https://drive.google.com/drive/folders/1NiL2JF5Rd_xmbJkOqiJOP1b_nCmSY7-Y?usp=sharing) |
 
 
 
