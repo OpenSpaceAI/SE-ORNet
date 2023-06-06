@@ -5,7 +5,10 @@ import torch
 
 def load_params_from_checkpoint(hparams, parser):
     path = hparams.resume_from_checkpoint
-    hparams_model = Namespace(**torch.load(path,map_location=torch.device('cpu'))['hyper_parameters'])
+    ckpt_dict = torch.load(path,map_location=torch.device('cpu'))
+    if "hyper_parameters" not in ckpt_dict.keys():
+        return hparams
+    hparams_model = Namespace(**ckpt_dict['hyper_parameters'])
     # hparams_model.max_epochs = hparams_model.current_epoch + 30
     for k,v in get_non_default(hparams,parser).items():
         setattr(hparams_model,k,v)

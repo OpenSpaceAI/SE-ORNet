@@ -227,7 +227,7 @@ class ShapeCorrTemplate(LightningModule):
 
         return dict_of_lists
 
-    def on_train_epoch_end(self, outputs) -> None:
+    def on_train_epoch_end(self, outputs=None) -> None:
         self.on_epoch_end_generic()
 
     def on_validation_epoch_end(self) -> None:
@@ -283,6 +283,19 @@ class ShapeCorrTemplate(LightningModule):
             choices=["l1", "l2", "softmax", "no_normalize"],
             help="The way to normalize neighbors similarity",
         )
+
+        if dataset_name=='shrec' or dataset_name=='surreal':
+            parser.add_argument(
+                "--orient_dims",
+                default=[3, 64, 128, 256],
+                help="The input dims of the orientnet",
+            )
+        else:
+            parser.add_argument(
+                "--orient_dims",
+                default=[3, 96, 192, 384],
+                help="The input dims of the orientnet",
+            )
 
         return parser
 

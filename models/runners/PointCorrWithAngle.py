@@ -162,6 +162,10 @@ class PointCorrWithAngle(ShapeCorrTemplate):
             return self.shrec_forward(source, target)
         elif self.hparams.dataset_name == "surreal":
             return self.surreal_forward(source, target)
+        elif self.hparams.dataset_name == "tosca":
+            return self.tosca_forward(source, target)
+        elif self.hparams.dataset_name == "smal":
+            return self.smal_forward(source, target)
 
     def shrec_forward(self, source, target):
         """The forward for shrec dataset.
@@ -229,7 +233,7 @@ class PointCorrWithAngle(ShapeCorrTemplate):
         source["dense_output_features"] = src_out.transpose(1, 2)
         target["dense_output_features"] = tgt_out.transpose(1, 2)
 
-        # t eacher
+        # teacher
         source["dense_output_features_teacher"] = src_out_teacher.transpose(1, 2)
         target["dense_output_features_teacher"] = tgt_out_teacher.transpose(1, 2)
 
@@ -257,6 +261,8 @@ class PointCorrWithAngle(ShapeCorrTemplate):
         else:
             src_pos_student = source["pos"]
             tgt_pos_student = target["pos"]
+            src_pos_teacher = source["pos"]
+            tgt_pos_teacher = target["pos"]
 
         # student
         src_out, tgt_out, orient_0, _ = self.s_model(
@@ -308,6 +314,192 @@ class PointCorrWithAngle(ShapeCorrTemplate):
         target["dense_output_features_teacher"] = tgt_out_teacher.transpose(1, 2)
 
         return source, target, loss_angle, loss_discr
+
+    def tosca_forward(self, source, target):
+        """The forward for tosca dataset.
+
+        Args:
+            source (tensor): N*3 the source point cloud
+            target (tensor): N*3 the target point cloud
+
+        Returns:
+            source (dict): the features of source
+            target (dict): the features of target
+            loss_angle (tensor): (1,) angle loss
+            loss_discr (tensor): (1,) domain discriminator loss
+        """
+        # Coordinate system correction for SMAL and TOSCA
+        source["pos"] = self.rotate_point_cloud_for_animal(source["pos"], torch.tensor(-0.5*torch.pi), 'X') #TOSCA
+        target["pos"] = self.rotate_point_cloud_for_animal(target["pos"], torch.tensor(-0.5*torch.pi), 'X') #TOSCA
+
+        if self.hparams.mode == "train" or self.hparams.mode == "val":
+            src_pos_student = self.src_aug(source["pos"])
+            tgt_pos_student, rotated_gt = self.tgt_aug(target["pos"])
+        else:
+            src_pos_student = source["pos"]
+            tgt_pos_student = target["pos"]
+
+        # student
+        src_out, tgt_out, _, domain_pred_student = self.s_model(
+            src_pos_student,
+            tgt_pos_student,
+            source["neigh_idxs"],
+            target["neigh_idxs"],
+            norm=False,
+        )
+
+        # teacher
+        src_out_teacher, tgt_out_teacher, _, domain_pred_teacher = self.t_model(
+            source["pos"],
+            target["pos"],
+            source["neigh_idxs"],
+            target["neigh_idxs"],
+            norm=False,
+        )
+
+        if self.hparams.mode == "train" or self.hparams.mode == "val":
+            # compute angle loss and domain discriminator loss
+            _, _, orient_1, domain_pred_target = self.s_model(
+                target["pos"],
+                tgt_pos_student,
+                target["neigh_idxs"],
+                target["neigh_idxs"],
+            )
+            angle_pred = orient_1.reshape((-1, 8))
+            rotated_gt = torch.cat((rotated_gt, (10 - rotated_gt) % 8))
+            loss_angle = F.cross_entropy(angle_pred, rotated_gt)
+            # source domain global
+            global_d_pred_S = domain_pred_target
+            domain_S = Variable(torch.zeros(global_d_pred_S.size(0)).long().cuda())
+            source_dloss = 1.0 * self.FL_global(global_d_pred_S, domain_S)
+            # target domain global
+            global_d_pred_T = domain_pred_student
+            domain_T = Variable(torch.ones(global_d_pred_T.size(0)).long().cuda())
+            target_dloss = 1.0 * self.FL_global(global_d_pred_T, domain_T)
+
+            loss_discr = source_dloss + target_dloss
+        else:
+            loss_angle = torch.tensor(0).cuda()
+            loss_discr = torch.tensor(0).cuda()
+
+        # student
+        source["dense_output_features"] = src_out.transpose(1, 2)
+        target["dense_output_features"] = tgt_out.transpose(1, 2)
+
+        # teacher
+        source["dense_output_features_teacher"] = src_out_teacher.transpose(1, 2)
+        target["dense_output_features_teacher"] = tgt_out_teacher.transpose(1, 2)
+
+        return source, target, loss_angle, loss_discr
+
+    def smal_forward(self, source, target):
+        """The forward for smal dataset.
+
+        Args:
+            source (tensor): N*3 the source point cloud
+            target (tensor): N*3 the target point cloud
+
+        Returns:
+            source (dict): the features of source
+            target (dict): the features of target
+            loss_angle (tensor): (1,) angle loss
+            loss_discr (tensor): (1,) domain discriminator loss
+        """
+        # Coordinate system correction for SMAL
+        source["pos"] = self.rotate_point_cloud_for_animal(source["pos"], torch.tensor(-0.5*torch.pi), 'Z') #SMAL
+        source["pos"] = self.rotate_point_cloud_for_animal(source["pos"], torch.tensor(-0.5*torch.pi), 'X') #SMAL
+        target["pos"] = self.rotate_point_cloud_for_animal(target["pos"], torch.tensor(-0.5*torch.pi), 'Z') #SMAL
+        target["pos"] = self.rotate_point_cloud_for_animal(target["pos"], torch.tensor(-0.5*torch.pi), 'X') #SMAL
+
+        if self.hparams.mode == "train" or self.hparams.mode == "val":
+            src_pos_student = self.src_aug(source["pos"])
+            tgt_pos_student, rotated_gt = self.tgt_aug(target["pos"])
+        else:
+            src_pos_student = source["pos"]
+            tgt_pos_student = target["pos"]
+
+        # student
+        src_out, tgt_out, _, domain_pred_student = self.s_model(
+            src_pos_student,
+            tgt_pos_student,
+            source["neigh_idxs"],
+            target["neigh_idxs"],
+            norm=False,
+        )
+
+        # teacher
+        src_out_teacher, tgt_out_teacher, _, domain_pred_teacher = self.t_model(
+            source["pos"],
+            target["pos"],
+            source["neigh_idxs"],
+            target["neigh_idxs"],
+            norm=False,
+        )
+
+        if self.hparams.mode == "train" or self.hparams.mode == "val":
+            # compute angle loss and domain discriminator loss
+            _, _, orient_1, domain_pred_target = self.s_model(
+                target["pos"],
+                tgt_pos_student,
+                target["neigh_idxs"],
+                target["neigh_idxs"],
+            )
+            angle_pred = orient_1.reshape((-1, 8))
+            rotated_gt = torch.cat((rotated_gt, (10 - rotated_gt) % 8))
+            loss_angle = F.cross_entropy(angle_pred, rotated_gt)
+            # source domain global
+            global_d_pred_S = domain_pred_target
+            domain_S = Variable(torch.zeros(global_d_pred_S.size(0)).long().cuda())
+            source_dloss = 1.0 * self.FL_global(global_d_pred_S, domain_S)
+            # target domain global
+            global_d_pred_T = domain_pred_student
+            domain_T = Variable(torch.ones(global_d_pred_T.size(0)).long().cuda())
+            target_dloss = 1.0 * self.FL_global(global_d_pred_T, domain_T)
+
+            loss_discr = source_dloss + target_dloss
+        else:
+            loss_angle = torch.tensor(0).cuda()
+            loss_discr = torch.tensor(0).cuda()
+
+        # student
+        source["dense_output_features"] = src_out.transpose(1, 2)
+        target["dense_output_features"] = tgt_out.transpose(1, 2)
+
+        # teacher
+        source["dense_output_features_teacher"] = src_out_teacher.transpose(1, 2)
+        target["dense_output_features_teacher"] = tgt_out_teacher.transpose(1, 2)
+
+        return source, target, loss_angle, loss_discr
+
+    def rotate_point_cloud_for_animal(self,batch_data, rotation_angle, axis = 'Y'):
+        """ Rotate the point cloud along up direction with certain angle.
+            Input:
+            BxNx3 array, original batch of point clouds
+            Return:
+            BxNx3 array, rotated batch of point clouds
+        """
+        rotated_data = torch.zeros(batch_data.shape, dtype=torch.float32).cuda()
+        for k in range(batch_data.shape[0]):
+            cosval = torch.cos(rotation_angle)
+            sinval = torch.sin(rotation_angle)
+            if axis == 'X':
+                rotation_matrix = torch.tensor([[1, 0, 0],
+                                            [0, cosval, sinval],
+                                            [0, -sinval, cosval]]).cuda()
+            elif axis == 'Y':
+                rotation_matrix = torch.tensor([[cosval, 0, sinval],
+                                            [0, 1, 0],
+                                            [-sinval, 0, cosval]]).cuda()
+            elif axis == 'Z':
+                rotation_matrix = torch.tensor([[cosval, sinval, 0],
+                                            [-sinval, cosval, 0],
+                                            [0, 0, 1]]).cuda()
+
+            shape_pc = batch_data[k,:,0:3]
+            rotated_data[k,:,0:3] = torch.mm(shape_pc.reshape((-1, 3)), rotation_matrix)
+
+        return rotated_data
+
 
     def forward_source_target(self, source, target):
         """In this function, we can get features, similarity, angle loss, and domain discriminator loss

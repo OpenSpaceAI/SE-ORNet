@@ -24,3 +24,5 @@ repreducability/noise_rotate_test/outputs/*
 **/checkpoints/*
 
 !data/docs/*
+data/images/*
+data/datasets/*

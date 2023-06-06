@@ -129,9 +129,16 @@ The metrics are obtained in 5 training runs followed by 5 test runs. We report b
 
 | Dataset | mAP@0.25 | mAP@0.5 | Download |
 |:-------:|:--------:|:-------:|:--------:|
-| SHREC’19 | 17.5 (16.8) | 5.1 (5.6) | [model](https://drive.google.com/drive/folders/1YG342B5f4Yhb7Z9OMo3KdHvOmvHJxzQm?usp=drive_link) |
+| SHREC’19 | 17.5 (16.8) | 5.1 (5.6) | [model](https://drive.google.com/drive/folders/1YG342B5f4Yhb7Z9OMo3KdHvOmvHJxzQm?usp=sharing) |
 | SURREAL | 22.3 (21.3) | 4.5 (4.8) | [model](https://drive.google.com/drive/folders/1NiL2JF5Rd_xmbJkOqiJOP1b_nCmSY7-Y?usp=sharing) |
 
+
+**Animal Datasets**
+
+| Dataset | mAP@0.25 | mAP@0.5 | Download |
+|:-------:|:--------:|:-------:|:--------:|
+| TOSCA | 40.8 (38.1) | 2.7 (2.8) | [model](https://drive.google.com/drive/folders/19dAHpJe1o7KMSTQBDyQ0xMu2lTveg_AT?usp=sharing) |
+| SMAL | 38.3 (36.2) | 3.3 (3.8) | [model](https://drive.google.com/drive/folders/1yYV_civ6j9-9Jmn1KYp8LybU6MEo57Ch?usp=sharing) |
 
 
 ## Training & inference

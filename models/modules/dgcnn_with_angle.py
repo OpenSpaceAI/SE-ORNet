@@ -87,6 +87,7 @@ class DGCNN_MODULAR(nn.Module):
         self.linear3 = nn.Linear(bb_size * 32, output_dim)
 
         self.orientnet = OrientNet(
+            input_dims=hparams.orient_dims,
             output_dim=256, latent_dim=256, mlps=[256, 128, 128]
         )
 
@@ -236,6 +237,7 @@ class DGCNN_MODULAR(nn.Module):
         start_neighs_source,
         start_neighs_target,
         sigmoid_for_classification=False,
+        norm=True,
     ):
 
         features_source, features_target, orient_list, global_d_pred = self.forward_per_point(
@@ -243,6 +245,7 @@ class DGCNN_MODULAR(nn.Module):
             x_target,
             start_neighs_souce=start_neighs_source,
             start_neighs_target=start_neighs_target,
+            norm=norm,
         )
         # features_aggregated = self.aggregate_all_points(features_per_point)
         # if sigmoid_for_classification:

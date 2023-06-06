@@ -57,12 +57,12 @@ class SMAL(PointCloudDataset):
         if(self.split == 'test'):
             gt_pairs_path = 'data/datasets/smal/generated_samples/gt_pairs_indices'
             if not os.path.exists(gt_pairs_path):
-                gt_pairs_path = os.path.join('~', 'data', 'datasets', 'smal', 'generated_samples', 'gt_pairs_indices')
+                gt_pairs_path = os.path.join('.', 'data', 'datasets', 'smal', 'generated_samples', 'gt_pairs_indices')
             if(not os.path.exists(gt_pairs_path)):
                 num_shapes = int(math.sqrt(gt_map.shape[0]))
                 all_pairs = list(itertools.product(list(range(num_shapes)), list(range(num_shapes))))
                 all_pairs = np.array(list(filter(lambda pair: pair[0] != pair[1],all_pairs)))
-                indices = np.random.choice(len(all_pairs), self.hparams.limit_test_batches, replace=False).tolist()
+                indices = np.random.choice(len(all_pairs), int(self.hparams.limit_test_batches), replace=False).tolist()
                 all_pairs = all_pairs[indices]
                 torch.save(all_pairs,gt_pairs_path)
             all_pairs = torch.load(gt_pairs_path)
