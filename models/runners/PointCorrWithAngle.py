@@ -412,14 +412,18 @@ class PointCorrWithAngle(ShapeCorrTemplate):
         target["pos"] = self.rotate_point_cloud_for_animal(target["pos"], torch.tensor(-0.5*torch.pi), 'X') #SMAL
 
         if self.hparams.mode == "train" or self.hparams.mode == "val":
-            src_pos_student = self.src_aug(source["pos"])
-            tgt_pos_student, rotated_gt = self.tgt_aug(target["pos"])
+            src_pos_student = source["pos"]
+            tgt_pos_student = target["pos"]
+            src_pos_teacher = self.src_aug(source["pos"])
+            tgt_pos_teacher, rotated_gt_teacher = self.tgt_aug(target["pos"])
         else:
             src_pos_student = source["pos"]
             tgt_pos_student = target["pos"]
+            src_pos_teacher = source["pos"]
+            tgt_pos_teacher = target["pos"]
 
         # student
-        src_out, tgt_out, _, domain_pred_student = self.s_model(
+        src_out, tgt_out, orient_1, domain_pred_student = self.s_model(
             src_pos_student,
             tgt_pos_student,
             source["neigh_idxs"],
@@ -428,9 +432,9 @@ class PointCorrWithAngle(ShapeCorrTemplate):
         )
 
         # teacher
-        src_out_teacher, tgt_out_teacher, _, domain_pred_teacher = self.t_model(
-            source["pos"],
-            target["pos"],
+        src_out_teacher, tgt_out_teacher, orient_2, domain_pred_teacher = self.t_model(
+            src_pos_teacher,
+            tgt_pos_teacher,
             source["neigh_idxs"],
             target["neigh_idxs"],
             norm=False,
@@ -438,15 +442,25 @@ class PointCorrWithAngle(ShapeCorrTemplate):
 
         if self.hparams.mode == "train" or self.hparams.mode == "val":
             # compute angle loss and domain discriminator loss
-            _, _, orient_1, domain_pred_target = self.s_model(
-                target["pos"],
+            _, _, orient_3, domain_pred_target = self.s_model(
                 tgt_pos_student,
+                tgt_pos_teacher,
                 target["neigh_idxs"],
                 target["neigh_idxs"],
+                norm=False,
             )
-            angle_pred = orient_1.reshape((-1, 8))
-            rotated_gt = torch.cat((rotated_gt, (10 - rotated_gt) % 8))
-            loss_angle = F.cross_entropy(angle_pred, rotated_gt)
+            angle_pred_1 = orient_1.reshape((-1, 8))
+            angle_pred_2 = orient_2.reshape((-1, 8))
+            angle_pred_3 = orient_3.reshape((-1, 8))
+            rotated_gt_3 = torch.cat((rotated_gt_teacher, (10 - rotated_gt_teacher) % 8))
+            rotated_gt_1 = torch.ones_like(rotated_gt_3)
+            rotated_gt_2 = torch.ones_like(rotated_gt_3)
+            loss_angle = 0.4 * (
+                F.cross_entropy(angle_pred_1, rotated_gt_1)
+                + F.cross_entropy(angle_pred_2, rotated_gt_2)
+                + F.cross_entropy(angle_pred_3, rotated_gt_3)
+            )
+            
             # source domain global
             global_d_pred_S = domain_pred_target
             domain_S = Variable(torch.zeros(global_d_pred_S.size(0)).long().cuda())
@@ -470,7 +484,7 @@ class PointCorrWithAngle(ShapeCorrTemplate):
         target["dense_output_features_teacher"] = tgt_out_teacher.transpose(1, 2)
 
         return source, target, loss_angle, loss_discr
-
+    
     def rotate_point_cloud_for_animal(self,batch_data, rotation_angle, axis = 'Y'):
         """ Rotate the point cloud along up direction with certain angle.
             Input:
