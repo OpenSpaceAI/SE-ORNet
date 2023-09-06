@@ -145,20 +145,20 @@ The metrics are obtained in 5 training runs followed by 5 test runs. We report b
 
 For training run
 ``` 
-python train_point_corr.py --dataset_name <surreal/tosca/shrec/smal>
+python train.py --dataset_name <surreal/tosca/shrec/smal>
 ```
 The code is based on [PyTorch-Lightning](https://pytorch-lightning.readthedocs.io/en/latest/), all PL [hyperparameters](https://pytorch-lightning.readthedocs.io/en/latest/common/trainer.html) are supported. 
 
 For testing, simply add `--do_train false` flag, followed by `--resume_from_checkpoint` with the relevant checkpoint.
 
 ```
-python train_point_corr.py --do_train false  --resume_from_checkpoint <path>
+python train.py --do_train false  --resume_from_checkpoint <path>
 ```
 Test phase visualizes each sample, for faster inference pass `--show_vis false`.
 
 We provide a trained checkpoint repreducing the results provided in the paper, to test and visualize the model run
 ``` 
-python train_point_corr.py --show_vis --do_train false --resume_from_checkpoint data/ckpts/surreal_ckpt.ckpt
+python train.py --show_vis --do_train false --resume_from_checkpoint data/ckpts/surreal_ckpt.ckpt
 ```
 
 ## BibTeX
